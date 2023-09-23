@@ -1,0 +1,5 @@
+[Unit]
+Description=Update DNS records on Cloudflare
+
+[Service]
+ExecStart=/usr/local/bin/dns-update.sh "{{ cloudflare_api_key }}" "{{ your_domain }}" "{{ your_subdomains }}"

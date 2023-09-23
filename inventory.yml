@@ -1,0 +1,4 @@
+all:
+  hosts:
+    ddns-hosts:
+      ansible_host: 10.24.9.214

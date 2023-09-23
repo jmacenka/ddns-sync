@@ -1,0 +1,50 @@
+---
+- hosts: ddns-hosts
+  become: yes
+  vars_files:
+    - credentials.yml
+  tasks:
+    - name: Install necessary packages
+      apt:
+        name:
+          - curl
+          - jq
+        state: latest
+        update_cache: yes
+
+    - name: Deploy the DNS update script
+      copy:
+        src: /path_to_your_local_script/dns-update.sh
+        dest: /usr/local/bin/dns-update.sh
+        mode: 0755
+
+    - name: Create log directory
+      file:
+        path: /var/log/dns-sync
+        state: directory
+        mode: 0755
+
+    - name: Set up the systemd timer unit
+      copy:
+        content: |
+          [Unit]
+          Description=Run dns update every 30 seconds
+
+          [Timer]
+          OnBootSec=30s
+          OnUnitActiveSec=30s
+
+          [Install]
+          WantedBy=timers.target
+        dest: /etc/systemd/system/dns-update.timer
+
+    - name: Set up the systemd service unit
+      template:
+        src: dns-update.service.j2
+        dest: /etc/systemd/system/dns-update.service
+
+    - name: Start and enable the timer
+      systemd:
+        name: dns-update.timer
+        state: started
+        enabled: yes
